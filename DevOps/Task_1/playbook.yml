@@ -1,0 +1,40 @@
+---
+- name: Установка и настройка Nginx на macOS
+  hosts: localhost
+  gather_facts: true
+  vars:
+    nginx_conf_path: /usr/local/etc/nginx/nginx.conf
+    nginx_root: "{{ ansible_env.HOME }}/Sites/nginx/www"
+    nginx_index: "{{ nginx_root }}/index.html"
+
+  tasks:
+    - name: Установить Nginx через Homebrew
+      community.general.homebrew:
+        name: nginx
+        state: present
+
+    - name: Убедиться, что директория для веб-контента существует
+      ansible.builtin.file:
+        path: "{{ nginx_root }}"
+        state: directory
+        mode: '0755'
+
+    - name: Создать простой index.html
+      ansible.builtin.copy:
+        dest: "{{ nginx_index }}"
+        content: "<h1>Добро пожаловать! Nginx работает на macOS.</h1>"
+        mode: '0644'
+
+    - name: Запустить Nginx через brew services
+      ansible.builtin.command: brew services start nginx
+      register: nginx_start
+      changed_when: "'Successfully started' in nginx_start.stdout"
+
+    - name: Проверить статус Nginx
+      ansible.builtin.command: brew services list
+      register: nginx_status
+      changed_when: false
+      failed_when: "'nginx' not in nginx_status.stdout"
+
+
+

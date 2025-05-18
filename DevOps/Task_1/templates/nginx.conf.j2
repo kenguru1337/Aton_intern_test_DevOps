@@ -1,0 +1,29 @@
+user {{ nginx_user }};
+worker_processes {{ worker_processes }};
+
+error_log {{ ansible_os_family == 'Darwin' | ternary('/usr/local/var/log/nginx/error.log','/var/log/nginx/error.log') }} warn;
+pid       {{ ansible_os_family == 'Darwin' | ternary('/usr/local/var/run/nginx.pid','/var/run/nginx.pid') }};
+
+events {
+    worker_connections 1024;
+}
+
+http {
+    include       {{ ansible_os_family == 'Darwin' | ternary('/usr/local/etc/nginx/mime.types','/etc/nginx/mime.types') }};
+    default_type  application/octet-stream;
+
+    sendfile        on;
+    keepalive_timeout  {{ keepalive_timeout }};
+
+    server {
+        listen {{ nginx_port }};
+        server_name localhost;
+        root {{ nginx_root }};
+        index index.html;
+
+        location / {
+            try_files $uri $uri/ =404;
+        }
+    }
+}
+

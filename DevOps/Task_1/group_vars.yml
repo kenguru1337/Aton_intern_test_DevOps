@@ -1,0 +1,8 @@
+nginx_package: nginx                  
+nginx_service: nginx                   
+nginx_port: 80                         
+nginx_user: www-data                   
+nginx_root: /var/www/html              
+worker_processes: auto                 
+keepalive_timeout: 65                  
+

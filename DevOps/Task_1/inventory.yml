@@ -1,0 +1,7 @@
+all:
+  hosts:
+    localhost:
+      ansible_connection: local                # Используем локальную машину как управляемую 
+      ansible_python_interpreter: /opt/anaconda3/bin/python3  # Явно указываем Python 3 на macOS 
+
+
