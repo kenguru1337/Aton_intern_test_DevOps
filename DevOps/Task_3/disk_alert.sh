@@ -5,13 +5,15 @@ MSMTP_CONF="/Users/alex/Documents/Работа/Aton/DevOps/disk_alert/msmtprc"
 THRESHOLD=85
 PARTITION="/"
 
-# Получение текущего использования диска в процентах
-USAGE=$(df -h "$PARTITION" | awk 'NR==2 {gsub(/%/,"",$5); print $5}')
+read _ TOTALKB AVAILKB _ < <(df -k "$PARTITION" | awk 'NR==2 {print $2, $4}')
+
+FREE=$(( AVAILKB * 100 / TOTALKB ))
+USED=$(( 100 - FREE ))
 
 # Проверка, превышает ли использование порог
-if (( USAGE >= THRESHOLD )); then
-  SUBJECT="Disk Usage Alert: ${USAGE}%% used"
-  BODY="Warning: disk usage is ${USAGE}%% on $(hostname) at $(date '+%F %T')."
+if (( FREE < THRESHOLD )); then
+  SUBJECT="Disk Free Alert: ${FREE}% available"
+  BODY="Warning: Free disk space on $(hostname) is now ${FREE}% (<${THRESHOLD}%) at $(date '+%F %T')."
 
   FULL_MESSAGE="From: test_aton_777@mail.ru
 To:   test_aton_777@mail.ru
